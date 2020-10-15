@@ -1,6 +1,8 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
+const StylelintPlugin = require("stylelint-webpack-plugin");
 const PATHS = {
   src: path.resolve(__dirname, "src"),
   dist: path.resolve(__dirname, "docs"),
@@ -25,6 +27,13 @@ module.exports = (_env, argv = { mode: "production" }) => {
     },
     devtool: isDev ? "cheap-source-map" : "source-map",
     plugins: [
+      new ESLintPlugin({
+        extensions: ["js", "jsx"],
+        formatter: "codeframe",
+      }),
+      new StylelintPlugin({
+        formatter: "codeframe",
+      }),
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         title: "LEMU Design System",
