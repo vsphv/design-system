@@ -1,0 +1,1 @@
+document.getElementById("app").innerHTML=["<div>","</div>"].join("Hello World");

@@ -1,0 +1,17 @@
+{
+  "name": "design-system",
+  "version": "1.0.0",
+  "description": "Design system buld by  LEMU",
+  "main": "index.js",
+  "repository": "https://github.com/vsphv/design-system.git",
+  "author": "Louis Phang <vsphv@lemu.dk>",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^4.5.0",
+    "webpack": "^5.1.0",
+    "webpack-cli": "^4.0.0"
+  }
+}
