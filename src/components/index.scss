@@ -1,5 +1,7 @@
-$base-font-size: 16px;
+@import "sass/setup";
 
 html {
   font-size: $base-font-size;
+  font-family: $font-family;
+  font-weight: 400;
 }

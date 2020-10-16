@@ -4,12 +4,14 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const FriendlyErrorsWebpackPlugin = require("friendly-errors-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const ESLintPlugin = require("eslint-webpack-plugin");
 const StylelintPlugin = require("stylelint-webpack-plugin");
 
 const PATHS = {
   src: path.resolve(__dirname, "src"),
   dist: path.resolve(__dirname, "docs"),
+  sass: path.resolve(__dirname, "src/sass"),
   contentBase: path.resolve(__dirname, "public"),
 };
 
@@ -33,6 +35,11 @@ module.exports = (_env, argv = { mode: "production" }) => {
       quiet: true,
     },
     devtool: isDev ? "cheap-source-map" : "source-map",
+    resolve: {
+      alias: {
+        sass: PATHS.sass,
+      },
+    },
     module: {
       rules: [
         {
@@ -59,6 +66,14 @@ module.exports = (_env, argv = { mode: "production" }) => {
     },
     plugins: [
       new webpack.ProgressPlugin(),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: path.join(PATHS.contentBase, "/fonts"),
+            to: path.join(PATHS.dist, "/fonts"),
+          },
+        ],
+      }),
       new FriendlyErrorsWebpackPlugin(),
       new MiniCssExtractPlugin({
         filename: "styles/[name].css",
