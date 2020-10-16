@@ -11,26 +11,48 @@
     "build": "webpack --mode production",
     "lint": "npm-run-all --parallel lint:*",
     "lint:scripts": "eslint --fix --ext .js,.jsx .",
-    "lint:styles": "stylelint --fix \"src/*.{css,sass,scss}\""
+    "lint:styles": "stylelint --fix \"src/**/*.{css,sass,scss}\""
+  },
+  "dependencies": {
+    "prop-types": "^15.7.2",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-react": "^7.12.1",
+    "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^5.0.0",
     "eslint": "^7.11.0",
+    "eslint-config-prettier": "^6.12.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
     "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.21.4",
     "eslint-webpack-plugin": "^2.1.0",
+    "friendly-errors-webpack-plugin": "^1.7.0",
     "html-webpack-plugin": "^4.5.0",
+    "mini-css-extract-plugin": "^1.0.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.1.2",
+    "sass": "^1.27.0",
+    "sass-loader": "^10.0.3",
+    "style-loader": "^2.0.0",
     "stylelint": "^13.7.2",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-recommended": "^3.0.0",
     "stylelint-prettier": "^1.1.2",
     "stylelint-webpack-plugin": "^2.1.1",
-    "webpack": "^5.1.0",
+    "webpack": "^5.1.2",
     "webpack-cli": "^4.0.0",
     "webpack-dev-server": "^3.11.0"
   },
-  "dependencies": {
-    "eslint-config-prettier": "^6.12.0"
-  }
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not IE_Mob 11",
+    "maintained node versions"
+  ]
 }

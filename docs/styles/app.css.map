@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack://design-system/src/components/index.scss"],"names":[],"mappings":"AAEA,KACE,cAHe,C","file":"styles/app.css","sourcesContent":["$base-font-size: 16px;\n\nhtml {\n  font-size: $base-font-size;\n}\n"],"sourceRoot":""}
