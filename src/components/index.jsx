@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { hot } from "react-hot-loader/root";
 
 import "./index.scss";
 
@@ -11,4 +12,4 @@ App.propTypes = {
   audience: PropTypes.string,
 };
 
-export default App;
+export default hot(App);

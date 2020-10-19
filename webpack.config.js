@@ -20,21 +20,11 @@ module.exports = (_env, argv = { mode: "production" }) => {
   const isDev = argv.mode === "development";
   const ENV_CONFIG = {
     common: {
-      entry: {
-        app: path.join(PATHS.src, "index.js"),
-      },
       output: {
         filename: "scripts/[name].js",
         path: PATHS.dist,
         chunkLoading: false,
         wasmLoading: false,
-      },
-      devServer: {
-        contentBase: PATHS.contentBase,
-        watchContentBase: true,
-        hot: true,
-        open: true,
-        quiet: true,
       },
       resolve: {
         alias: {
@@ -54,6 +44,7 @@ module.exports = (_env, argv = { mode: "production" }) => {
       },
       plugins: [
         new webpack.ProgressPlugin(),
+        new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
         new HtmlWebpackPlugin({
           title: "LEMU Design System",
           minify: !isDev,
@@ -62,10 +53,24 @@ module.exports = (_env, argv = { mode: "production" }) => {
       ],
     },
     development: {
+      mode: "development",
+      target: "web",
+      entry: {
+        app: ["react-hot-loader/patch", path.join(PATHS.src, "index.js")],
+      },
       output: {
         publicPath: "/",
       },
-      devtool: "cheap-source-map",
+      devtool: "source-map",
+      devServer: {
+        contentBase: [PATHS.src, PATHS.contentBase],
+        watchContentBase: true,
+        inline: true,
+        hot: true,
+        port: 8080,
+        open: true,
+        quiet: true,
+      },
       module: {
         rules: [
           {
@@ -86,10 +91,15 @@ module.exports = (_env, argv = { mode: "production" }) => {
       plugins: [new FriendlyErrorsWebpackPlugin()],
     },
     production: {
+      mode: "production",
+      target: "browserslist",
+      entry: {
+        app: path.join(PATHS.src, "index.js"),
+      },
       output: {
         publicPath: "./",
       },
-      devtool: "source-map",
+      devtool: "cheap-source-map",
       module: {
         rules: [
           {
@@ -123,7 +133,6 @@ module.exports = (_env, argv = { mode: "production" }) => {
         new StylelintPlugin({
           formatter: "codeframe",
         }),
-        new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
           filename: "styles/[name].css",
           chunkFilename: "styles/[id].css",
