@@ -6,6 +6,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const ESLintPlugin = require("eslint-webpack-plugin");
+const { merge } = require("webpack-merge");
 const StylelintPlugin = require("stylelint-webpack-plugin");
 
 const PATHS = {
@@ -17,81 +18,119 @@ const PATHS = {
 
 module.exports = (_env, argv = { mode: "production" }) => {
   const isDev = argv.mode === "development";
-  return {
-    entry: {
-      app: path.join(PATHS.src, "index.js"),
-    },
-    output: {
-      filename: "scripts/[name].js",
-      path: PATHS.dist,
-      publicPath: isDev ? "/" : "./",
-      chunkLoading: false,
-      wasmLoading: false,
-    },
-    devServer: {
-      contentBase: PATHS.contentBase,
-      watchContentBase: true,
-      open: true,
-      quiet: true,
-    },
-    devtool: isDev ? "cheap-source-map" : "source-map",
-    resolve: {
-      alias: {
-        sass: PATHS.sass,
+  const ENV_CONFIG = {
+    common: {
+      entry: {
+        app: path.join(PATHS.src, "index.js"),
       },
-    },
-    module: {
-      rules: [
-        {
-          test: /.(js|jsx|mjs)$/,
-          loader: "babel-loader",
-          resolve: {
-            fullySpecified: false,
-          },
+      output: {
+        filename: "scripts/[name].js",
+        path: PATHS.dist,
+        chunkLoading: false,
+        wasmLoading: false,
+      },
+      devServer: {
+        contentBase: PATHS.contentBase,
+        watchContentBase: true,
+        hot: true,
+        open: true,
+        quiet: true,
+      },
+      resolve: {
+        alias: {
+          sass: PATHS.sass,
         },
-        {
-          test: /\.s[ac]ss$/i,
-          use: [
-            isDev ? "style-loader" : MiniCssExtractPlugin.loader,
-            "css-loader",
-            {
-              loader: "sass-loader",
-              options: {
-                implementation: require("sass"),
-              },
-            },
-          ],
-        },
-      ],
-    },
-    plugins: [
-      new webpack.ProgressPlugin(),
-      new CopyPlugin({
-        patterns: [
+      },
+      module: {
+        rules: [
           {
-            from: path.join(PATHS.contentBase, "/fonts"),
-            to: path.join(PATHS.dist, "/fonts"),
+            test: /.(js|jsx|mjs)$/,
+            loader: "babel-loader",
+            resolve: {
+              fullySpecified: false,
+            },
           },
         ],
-      }),
-      new FriendlyErrorsWebpackPlugin(),
-      new MiniCssExtractPlugin({
-        filename: "styles/[name].css",
-        chunkFilename: "styles/[id].css",
-      }),
-      new ESLintPlugin({
-        extensions: ["js", "jsx"],
-        formatter: "codeframe",
-      }),
-      new StylelintPlugin({
-        formatter: "codeframe",
-      }),
-      new CleanWebpackPlugin(),
-      new HtmlWebpackPlugin({
-        title: "LEMU Design System",
-        minify: !isDev,
-        template: path.join(PATHS.contentBase, "index.html"),
-      }),
-    ],
+      },
+      plugins: [
+        new webpack.ProgressPlugin(),
+        new HtmlWebpackPlugin({
+          title: "LEMU Design System",
+          minify: !isDev,
+          template: path.join(PATHS.contentBase, "index.html"),
+        }),
+      ],
+    },
+    development: {
+      output: {
+        publicPath: "/",
+      },
+      devtool: "cheap-source-map",
+      module: {
+        rules: [
+          {
+            test: /\.s[ac]ss$/i,
+            use: [
+              "style-loader",
+              "css-loader",
+              {
+                loader: "sass-loader",
+                options: {
+                  implementation: require("sass"),
+                },
+              },
+            ],
+          },
+        ],
+      },
+      plugins: [new FriendlyErrorsWebpackPlugin()],
+    },
+    production: {
+      output: {
+        publicPath: "./",
+      },
+      devtool: "source-map",
+      module: {
+        rules: [
+          {
+            test: /\.s[ac]ss$/i,
+            use: [
+              MiniCssExtractPlugin.loader,
+              "css-loader",
+              {
+                loader: "sass-loader",
+                options: {
+                  implementation: require("sass"),
+                },
+              },
+            ],
+          },
+        ],
+      },
+      plugins: [
+        new CopyPlugin({
+          patterns: [
+            {
+              from: path.join(PATHS.contentBase, "/fonts"),
+              to: path.join(PATHS.dist, "/fonts"),
+            },
+          ],
+        }),
+        new ESLintPlugin({
+          extensions: ["js", "jsx"],
+          formatter: "codeframe",
+        }),
+        new StylelintPlugin({
+          formatter: "codeframe",
+        }),
+        new CleanWebpackPlugin(),
+        new MiniCssExtractPlugin({
+          filename: "styles/[name].css",
+          chunkFilename: "styles/[id].css",
+        }),
+      ],
+    },
   };
+  const config = merge(ENV_CONFIG.common, ENV_CONFIG[argv.mode] || {});
+  return config;
 };
