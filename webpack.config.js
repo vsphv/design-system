@@ -13,63 +13,70 @@ const PATHS = {
   src: path.resolve(__dirname, "src"),
   dist: path.resolve(__dirname, "docs"),
   sass: path.resolve(__dirname, "src/sass"),
-  contentBase: path.resolve(__dirname, "public"),
+  public: path.resolve(__dirname, "public"),
 };
 
-module.exports = (_env, argv = { mode: "production" }) => {
-  const isDev = argv.mode === "development";
+const env = process.env.NODE_ENV;
+
+module.exports = () => {
+  console.info(`Webpack running in ${env} mode.`);
   const ENV_CONFIG = {
     common: {
+      entry: {
+        main: path.join(PATHS.src, "index.js"),
+      },
       output: {
         filename: "scripts/[name].js",
         path: PATHS.dist,
-        chunkLoading: false,
-        wasmLoading: false,
       },
       resolve: {
         alias: {
           sass: PATHS.sass,
+          "react-dom": "@hot-loader/react-dom",
         },
+        extensions: [".js", ".jsx", ".css", ".scss"],
       },
       module: {
         rules: [
           {
-            test: /.(js|jsx|mjs)$/,
-            loader: "babel-loader",
-            resolve: {
-              fullySpecified: false,
-            },
+            test: /\.(js|jsx)$/,
+            include: PATHS.src,
+            use: [
+              {
+                loader: "babel-loader",
+                options: {
+                  exclude: [/node_modules\/(webpack|html-webpack-plugin)\//],
+                  cacheDirectory: true,
+                },
+              },
+            ],
           },
         ],
       },
       plugins: [
-        new webpack.ProgressPlugin(),
-        new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
+        new webpack.ProgressPlugin({ percentBy: "entries" }),
         new HtmlWebpackPlugin({
-          title: "LEMU Design System",
-          minify: !isDev,
-          template: path.join(PATHS.contentBase, "index.html"),
+          title: "Design System",
+          template: path.join(PATHS.public, "index.html"),
         }),
       ],
+      devtool: false,
     },
     development: {
       mode: "development",
       target: "web",
       entry: {
-        app: ["react-hot-loader/patch", path.join(PATHS.src, "index.js")],
+        main: ["react-hot-loader/patch", path.join(PATHS.src, "index.js")],
       },
       output: {
         publicPath: "/",
       },
-      devtool: "source-map",
       devServer: {
-        contentBase: [PATHS.src, PATHS.contentBase],
-        watchContentBase: true,
-        inline: true,
+        contentBase: [PATHS.dist, PATHS.public],
         hot: true,
-        port: 8080,
         open: true,
-        quiet: true,
+        host: "localhost",
+        port: 8080,
       },
       module: {
         rules: [
@@ -88,18 +95,23 @@ module.exports = (_env, argv = { mode: "production" }) => {
           },
         ],
       },
-      plugins: [new FriendlyErrorsWebpackPlugin()],
+      plugins: [
+        new webpack.EvalSourceMapDevToolPlugin({
+          filename: "[name][ext].sourcemap",
+        }),
+        new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
+        new FriendlyErrorsWebpackPlugin(),
+      ],
     },
     production: {
       mode: "production",
+      bail: true,
       target: "browserslist",
-      entry: {
-        app: path.join(PATHS.src, "index.js"),
-      },
       output: {
         publicPath: "./",
+        chunkLoading: false,
+        wasmLoading: false,
       },
-      devtool: "cheap-source-map",
       module: {
         rules: [
           {
@@ -118,10 +130,14 @@ module.exports = (_env, argv = { mode: "production" }) => {
         ],
       },
       plugins: [
+        new CleanWebpackPlugin(),
+        new webpack.SourceMapDevToolPlugin({
+          filename: "[name][ext].sourcemap",
+        }),
         new CopyPlugin({
           patterns: [
             {
-              from: path.join(PATHS.contentBase, "/fonts"),
+              from: path.join(PATHS.public, "/fonts"),
               to: path.join(PATHS.dist, "/fonts"),
             },
           ],
@@ -140,6 +156,6 @@ module.exports = (_env, argv = { mode: "production" }) => {
       ],
     },
   };
-  const config = merge(ENV_CONFIG.common, ENV_CONFIG[argv.mode] || {});
+  const config = merge(ENV_CONFIG.common, ENV_CONFIG[env] || {});
   return config;
 };
